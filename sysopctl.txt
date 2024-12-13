@@ -1,0 +1,205 @@
+Step to create the command sysopctl:
+
+Step 1: Open the Linux terminal.
+
+
+Step 2: Run Command : vi sysopctl.sh
+
+
+Step 3: Copy-paste the below code to in the terminal :-
+	
+#!/bin/bash
+
+# sysopctl - A command-line tool for managing system resources and tasks.
+# Version: v0.1.0
+
+VERSION="v0.1.0"
+
+# Function to display help message
+function show_help() {
+    cat <<EOF
+Usage: sysopctl [command] [options]
+
+System Operations Command-Line Tool
+
+Commands:
+  service list                 List all active services.
+  service start <name>         Start a specified service.
+  service stop <name>          Stop a specified service.
+  system load                  Display system load averages.
+  disk usage                   Show disk usage by partition.
+  process monitor              Display real-time process activity.
+  logs analyze                 Summarize recent critical system logs.
+  backup <path>                Backup the specified directory or file.
+
+Options:
+  --help                       Show this help message and exit.
+  --version                    Show version information.
+EOF
+}
+
+# Function to show version information
+function show_version() {
+    echo "sysopctl version $VERSION"
+}
+
+# Function to list running services
+function list_services() {
+    systemctl list-units --type=service --state=active
+}
+
+# Function to display system load
+function display_system_load() {
+    uptime
+}
+
+# Function to start a service
+function start_service() {
+    local service_name=$1
+    if [[ -z "$service_name" ]]; then
+        echo "Error: Service name is required."
+        exit 1
+    fi
+    sudo systemctl start "$service_name" && echo "Service '$service_name' started successfully."
+}
+
+# Function to stop a service
+function stop_service() {
+    local service_name=$1
+    if [[ -z "$service_name" ]]; then
+        echo "Error: Service name is required."
+        exit 1
+    fi
+    sudo systemctl stop "$service_name" && echo "Service '$service_name' stopped successfully."
+}
+
+# Function to check disk usage
+function check_disk_usage() {
+    df -h
+}
+
+# Function to monitor processes
+function monitor_processes() {
+    top
+}
+
+# Function to analyze system logs
+function analyze_logs() {
+    journalctl -p crit --since "1 hour ago"
+}
+
+# Function to backup system files
+function backup_files() {
+    local path=$1
+    if [[ -z "$path" ]]; then
+        echo "Error: Path is required."
+        exit 1
+    fi
+    local backup_target="/backup/$(basename "$path")_$(date +%Y%m%d%H%M%S)"
+    sudo rsync -av "$path" "$backup_target" && echo "Backup completed: $backup_target"
+}
+
+# Main script logic
+case $1 in
+    --help)
+        show_help
+        ;;
+    --version)
+        show_version
+        ;;
+    service)
+        case $2 in
+            list)
+                list_services
+                ;;
+            start)
+                start_service "$3"
+                ;;
+            stop)
+                stop_service "$3"
+                ;;
+            *)
+                echo "Error: Invalid service command. Use 'sysopctl --help' for usage."
+                exit 1
+                ;;
+        esac
+        ;;
+    system)
+        case $2 in
+            load)
+                display_system_load
+                ;;
+            *)
+                echo "Error: Invalid system command. Use 'sysopctl --help' for usage."
+                exit 1
+                ;;
+        esac
+        ;;
+    disk)
+        case $2 in
+            usage)
+                check_disk_usage
+                ;;
+            *)
+                echo "Error: Invalid disk command. Use 'sysopctl --help' for usage."
+                exit 1
+                ;;
+        esac
+        ;;
+    process)
+        case $2 in
+            monitor)
+                monitor_processes
+                ;;
+            *)
+                echo "Error: Invalid process command. Use 'sysopctl --help' for usage."
+                exit 1
+                ;;
+        esac
+        ;;
+    logs)
+        case $2 in
+            analyze)
+                analyze_logs
+                ;;
+            *)
+                echo "Error: Invalid logs command. Use 'sysopctl --help' for usage."
+                exit 1
+                ;;
+        esac
+        ;;
+    backup)
+        backup_files "$2"
+        ;;
+    *)
+        echo "Error: Invalid command. Use 'sysopctl --help' for usage."
+        exit 1
+        ;;
+esac
+
+
+Step 4: Enter command- ':wq' to save and quit the editor.
+
+
+Step 5: Make the Script Executable:
+	Use the chmod command to make the script executable:
+
+	chmod +x sysopctl.sh  
+
+
+Step 6: Run the Script:
+	Execute the script using ./:
+	./sysopctl.sh <command> 
+
+	->For example, to list services:
+	  ./sysopctl.sh service list
+
+
+Step 7: Install the Command Globally:
+	To use sysopctl as a command without typing ./, move it to a directory in your PATH, such as /usr/local/bin:
+
+	sudo mv sysopctl.sh /usr/local/bin/sysopctl
+	
+	Now, you can use it directly:
+
+	sysopctl service list
